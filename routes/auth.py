@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.user_repository import check_username_and_email, create_user
 from db.database import get_session
-from schemas.user_schema import UserAuthentication, UserCreate
+from schemas.user_schema import UserAuthentication, UserBase, UserCreate
 from security.security import authenticate_user, create_access_token
 from security.pwd_crypt import get_hashed_password
 
@@ -33,8 +33,12 @@ async def create_new_user(
 
     user_data.password = get_hashed_password(user_data.password)
     new_user = await create_user(session, user_data)
+    new_user_data = UserBase.model_validate(new_user)
 
-    return Response(content=new_user, status_code=status.HTTP_201_CREATED)
+    return Response(
+        content=new_user_data.model_dump_json(),
+        status_code=status.HTTP_201_CREATED
+    )
 
 
 @authrouter.post("/token/login")

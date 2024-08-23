@@ -38,13 +38,11 @@ class User(Base):
         "Course",
         secondary="subscription",
         back_populates="users",
-        cascade="all, delete-orphan"
         )
     groups = relationship(
         "Group",
         secondary="user_group",
         back_populates="users",
-        cascade="all, delete-orphan"
         )
 
     @validates("username")

@@ -42,8 +42,7 @@ class Course(Base):
     users = relationship(
         "User",
         secondary="subscription",
-        back_populates="courses",
-        cascade="all, delete-orphan"
+        back_populates="courses"
     )
     lessons: Mapped[list["Lesson"]] = relationship(
         back_populates="course",
@@ -68,8 +67,8 @@ class Lesson(Base):
     title: Mapped[str] = mapped_column(String(250))
     link = mapped_column(URLType, nullable=False)
 
-    course: Mapped["Group"] = relationship(
-        back_populates="groups",
+    course: Mapped["Course"] = relationship(
+        back_populates="lessons",
     )
 
     def __str__(self) -> str:
@@ -92,7 +91,6 @@ class Group(Base):
         "User",
         secondary="user_group",
         back_populates="groups",
-        cascade="all, delete-orphan"
     )
 
     @validates("users")
