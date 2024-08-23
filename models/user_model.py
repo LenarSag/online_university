@@ -9,8 +9,6 @@ from sqlalchemy.orm import (
 from models.base import Base
 
 
-
-
 class User(Base):
     __tablename__ = "user"
 
@@ -19,12 +17,12 @@ class User(Base):
         String(50),
         unique=True,
         nullable=False,
-        index=True
     )
     email: Mapped[str] = mapped_column(
         String(50),
         unique=True,
-        nullable=False
+        nullable=False,
+        index=True
     )
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
