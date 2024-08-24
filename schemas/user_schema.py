@@ -1,7 +1,10 @@
 import re
+from typing import Optional
 
 from fastapi.exceptions import ValidationException
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from models.user_model import UserRoles
 
 
 class UserAuthentication(BaseModel):
@@ -37,12 +40,23 @@ class UserCreate(UserAuthentication):
     last_name: str = Field(max_length=50)
 
 
+class UserEdit(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: Optional[bool] = True
+    role: UserRoles = Field(default=UserRoles.USER)
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+
 class UserBase(BaseModel):
     id: int
     username: str
     email: EmailStr
     first_name: str
     last_name: str
-
-    class Config:
-        from_attributes = True
+    is_active: bool
