@@ -4,7 +4,8 @@ from fastapi import FastAPI
 import uvicorn
 
 from db.database import init_models
-from routes.auth import authrouter
+from routes.authentication import authrouter
+from routes.users import usersrouter
 
 
 API_URL = "/api/v1"
@@ -13,6 +14,7 @@ API_URL = "/api/v1"
 app = FastAPI()
 
 app.include_router(authrouter, prefix=f"{API_URL}/auth")
+app.include_router(usersrouter, prefix=f"{API_URL}/users")
 
 
 if __name__ == "__main__":

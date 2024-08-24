@@ -12,10 +12,13 @@ from security.pwd_crypt import get_hashed_password
 
 authrouter = APIRouter()
 
-@authrouter.post("/users")
+
+@authrouter.post(
+    "/users", response_model=UserBase, status_code=status.HTTP_201_CREATED
+)
 async def create_new_user(
     user_data: UserCreate,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_session)
 ):
     user = await check_username_and_email(
         session, user_data.username, user_data.email
@@ -33,12 +36,14 @@ async def create_new_user(
 
     user_data.password = get_hashed_password(user_data.password)
     new_user = await create_user(session, user_data)
-    new_user_data = UserBase.model_validate(new_user)
 
-    return Response(
-        content=new_user_data.model_dump_json(),
-        status_code=status.HTTP_201_CREATED
-    )
+    return new_user
+
+    # new_user_data = UserBase.model_validate(new_user)
+    # return Response(
+    #     content=new_user_data.model_dump_json(),
+    #     status_code=status.HTTP_201_CREATED
+    # )
 
 
 @authrouter.post("/token/login")

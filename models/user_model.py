@@ -1,12 +1,18 @@
 from decimal import Decimal
+from enum import Enum as PyEnum
 import re
 
-from sqlalchemy import Column, ForeignKey, String, DECIMAL, Table
+from sqlalchemy import Column, Enum, ForeignKey, String, DECIMAL, Table
 from sqlalchemy.orm import (
     Mapped, mapped_column, relationship, validates
 )
 
 from models.base import Base
+
+
+class UserRoles(PyEnum):
+    ADMIN = "admin"
+    USER = "user"
 
 
 class User(Base):
@@ -27,7 +33,11 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
-    is_admin: Mapped[bool] = mapped_column(default=False)
+    role: Mapped[UserRoles] = mapped_column(
+        Enum(UserRoles, values_callable=lambda obj: [e.value for e in obj]),
+        default=UserRoles.USER.value,
+        server_default=UserRoles.USER.value,
+    )
     is_active: Mapped[bool] = mapped_column(default=True)
 
     balance: Mapped["Balance"] = relationship(
