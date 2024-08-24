@@ -1,6 +1,5 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.user_repository import check_username_and_email, create_user

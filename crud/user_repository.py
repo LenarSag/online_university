@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.user_model import User
+from models.user_model import Balance, User
 from schemas.user_schema import UserCreate, UserEdit
 
 
@@ -55,13 +55,26 @@ async def get_user_by_email(
     return result.scalar()
 
 
+async def get_user_balance(
+    session: AsyncSession,
+    user: User
+) -> User:
+    await session.refresh(user, attribute_names=("balance",))
+    return user
+
+
 async def create_user(
     session: AsyncSession,
     user_data: UserCreate
 ) -> User:
     user = User(**user_data.model_dump())
     session.add(user)
+    await session.flush()
+
+    balance = Balance(user_id=user.id)
+    session.add(balance)
     await session.commit()
+
     return user
 
 

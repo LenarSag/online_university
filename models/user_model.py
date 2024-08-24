@@ -83,7 +83,7 @@ class Balance(Base):
     amount: Mapped[DECIMAL] = mapped_column(
         DECIMAL(precision=9, scale=2),
         nullable=False,
-        default=Decimal(0.00)
+        default=Decimal(1000.00)
     )
 
     user: Mapped["User"] = relationship(back_populates="balance")

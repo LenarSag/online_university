@@ -1,15 +1,18 @@
-
 from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud.user_repository import check_username_and_email_for_update, delete_user, get_user_by_id, update_user
+from crud.user_repository import (
+    check_username_and_email_for_update,
+    delete_user,
+    get_user_balance, get_user_by_id,
+    update_user
+)
 from db.database import get_session
 from models.user_model import User
 from permissions.rbac import check_role
-from schemas.user_schema import UserBase, UserEdit
-from security.security import  get_current_user
+from schemas.user_schema import UserBase, UserEdit, UserWithBalance
+from security.security import get_current_user
 
 
 usersrouter = APIRouter()
@@ -25,11 +28,13 @@ async def get_user_or_404(session: AsyncSession, id: int) -> Optional[User]:
     return user
 
 
-@usersrouter.get("/me", response_model=UserBase)
+@usersrouter.get("/me", response_model=UserWithBalance)
 async def get_myself(
-    current_user: UserBase = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
 ):
-    return current_user
+    user_with_balance = await get_user_balance(session, current_user)
+    return user_with_balance
 
 
 @usersrouter.get("/{id}", response_model=UserBase)

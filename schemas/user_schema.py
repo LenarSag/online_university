@@ -1,3 +1,4 @@
+from decimal import Decimal
 import re
 from typing import Optional
 
@@ -60,3 +61,11 @@ class UserBase(BaseModel):
     first_name: str
     last_name: str
     is_active: bool
+
+
+class BalanceBase(BaseModel):
+    amount: Optional[Decimal]
+
+
+class UserWithBalance(UserBase):
+    balance: BalanceBase
