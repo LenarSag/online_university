@@ -6,12 +6,13 @@ from crud.user_repository import (
     check_username_and_email_for_update,
     delete_user,
     get_user_balance, get_user_by_id,
+    update_balance,
     update_user
 )
 from db.database import get_session
 from models.user_model import User
 from permissions.rbac import check_role
-from schemas.user_schema import UserBase, UserEdit, UserWithBalance
+from schemas.user_schema import BalanceBase, UserBase, UserEdit, UserWithBalance
 from security.security import get_current_user
 
 
@@ -90,3 +91,17 @@ async def delete_user_data(
 ):
     user_to_delete = await get_user_or_404(session, id)
     await delete_user(session, user_to_delete)
+
+
+@usersrouter.post("/{id}/balance", response_model=UserWithBalance)
+@check_role(["admin"])
+async def update_user_balance(
+    id: int,
+    balance: BalanceBase,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    user = await get_user_or_404(session, id)
+    updated_user = await update_balance(session, user, balance.amount)
+
+    return updated_user

@@ -1,6 +1,7 @@
 from decimal import Decimal
 import re
 from typing import Optional
+from typing_extensions import Annotated
 
 from fastapi.exceptions import ValidationException
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -64,7 +65,7 @@ class UserBase(BaseModel):
 
 
 class BalanceBase(BaseModel):
-    amount: Optional[Decimal]
+    amount: Annotated[Decimal, Field(ge=0.0)]
 
 
 class UserWithBalance(UserBase):

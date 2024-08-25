@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 
 from pydantic import EmailStr
@@ -28,7 +29,7 @@ async def check_username_and_email_for_update(
     query = select(User).where(
         and_(
             or_(
-                User.username == username, 
+                User.username == username,
                 User.email == email
             ),
             User.id != id
@@ -59,6 +60,18 @@ async def get_user_balance(
     session: AsyncSession,
     user: User
 ) -> User:
+    await session.refresh(user, attribute_names=("balance",))
+    return user
+
+
+async def update_balance(
+    session: AsyncSession,
+    user: User,
+    new_amount: Decimal
+) -> User:
+    await session.refresh(user, attribute_names=("balance",))
+    user.balance.amount = new_amount
+    await session.commit()
     await session.refresh(user, attribute_names=("balance",))
     return user
 
