@@ -63,6 +63,9 @@ class UserBase(BaseModel):
     last_name: str
     is_active: bool
 
+    class Config:
+        from_attributes = True
+
 
 class BalanceBase(BaseModel):
     amount: Annotated[Decimal, Field(ge=0.0)]

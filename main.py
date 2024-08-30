@@ -5,6 +5,7 @@ import uvicorn
 
 from db.database import init_models
 from routes.authentication import authrouter
+from routes.courses import coursesrouter
 from routes.users import usersrouter
 
 
@@ -14,6 +15,7 @@ API_URL = "/api/v1"
 app = FastAPI()
 
 app.include_router(authrouter, prefix=f"{API_URL}/auth")
+app.include_router(coursesrouter, prefix=f"{API_URL}/courses")
 app.include_router(usersrouter, prefix=f"{API_URL}/users")
 
 
