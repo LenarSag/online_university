@@ -3,14 +3,32 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination import Page, Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud.courses_repository import get_course_by_id, get_paginated_courses
+from crud.courses_repository import create_new_course, get_course_by_id, get_paginated_courses
 from db.database import get_session
 from models.user_model import User
-from schemas.course_schema import CourseData
+from permissions.rbac import check_role
+from schemas.course_schema import CourseCreate, CourseData
 from security.security import get_current_user
 
 
 coursesrouter = APIRouter()
+
+
+@coursesrouter.post(
+    "/",
+    response_model=CourseCreate,
+    status_code=status.HTTP_201_CREATED)
+@check_role(["admin"])
+async def create_course(
+    course_data: CourseCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    new_course = await create_new_course(
+        session, course_data
+    )
+    return new_course
+
 
 @coursesrouter.get("/{id}", response_model=CourseData)
 async def get_course(

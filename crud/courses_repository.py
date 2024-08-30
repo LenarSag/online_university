@@ -6,6 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.course_model import Course
+from schemas.course_schema import CourseCreate
+
+
+async def create_new_course(
+    session: AsyncSession,
+    course_data: CourseCreate
+) -> Course:
+    new_course = Course(**course_data.model_dump())
+    session.add(new_course)
+    await session.commit()
+    return new_course
 
 
 async def get_course_by_id(
