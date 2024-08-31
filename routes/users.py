@@ -12,7 +12,9 @@ from crud.user_repository import (
 from db.database import get_session
 from models.user_model import User
 from permissions.rbac import check_role
-from schemas.user_schema import BalanceBase, UserBase, UserEdit, UserWithBalance
+from schemas.user_schema import (
+    BalanceBase, UserBase, UserEdit, UserWithBalance
+)
 from security.security import get_current_user
 
 

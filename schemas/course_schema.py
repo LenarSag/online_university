@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel, HttpUrl
 
@@ -21,6 +22,13 @@ class LessonCreate(LessonMini):
 
 class LessonData(LessonCreate):
     id: int
+
+
+class CourseUpdate(BaseModel):
+    author: Optional[str]
+    title: Optional[str]
+    start_date: Optional[datetime]
+    price: Optional[Decimal]
 
 
 class CourseCreate(BaseModel):

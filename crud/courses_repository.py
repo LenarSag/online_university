@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.course_model import Course
-from schemas.course_schema import CourseCreate
+from schemas.course_schema import CourseCreate, CourseUpdate
 
 
 async def create_new_course(
@@ -41,3 +41,25 @@ async def get_paginated_courses(
         .options(selectinload(Course.lessons), selectinload(Course.users))
         .order_by(Course.title), params
     )
+
+
+async def update_course(
+    session: AsyncSession,
+    course: Course,
+    new_course_data: CourseUpdate
+) -> Course:
+    update_data = new_course_data.model_dump()
+    for key, value in update_data.items():
+        if value:
+            setattr(course, key, value)
+    await session.commit()
+    await session.refresh(course)
+    return course
+
+
+async def delete_course(
+    session: AsyncSession,
+    course: Course
+) -> None:
+    await session.delete(course)
+    await session.commit()
