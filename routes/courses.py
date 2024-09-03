@@ -5,11 +5,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination import Page, Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud.courses_repository import create_new_course, delete_course, get_course_by_id, get_paginated_courses, update_course
+from crud.courses_repository import (
+    create_new_course,
+    delete_course,
+    get_course_by_id,
+    get_paginated_courses,
+    update_course
+)
 from db.database import get_session
 from models.course_model import Course
 from models.user_model import User
 from permissions.rbac import check_role
+from routes.lessons import lessonsrouter
 from schemas.course_schema import CourseCreate, CourseData, CourseUpdate
 from security.security import get_current_user
 
@@ -74,7 +81,9 @@ async def get_course(
     )
 
 
-@coursesrouter.get("/", response_model=Page[CourseData])
+@coursesrouter.get(
+    "/", response_model=Page[CourseData]
+)
 async def get_courses(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
@@ -113,7 +122,6 @@ async def update_course_data(
     return updated_course
 
 
-
 @coursesrouter.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 @check_role(["admin"])
 async def delete_course_data(
@@ -124,3 +132,6 @@ async def delete_course_data(
 ):
     course_to_delete = await get_course_or_404(session, id)
     await delete_course(session, course_to_delete)
+
+
+coursesrouter.include_router(lessonsrouter, prefix="/{course_id}/lessons")

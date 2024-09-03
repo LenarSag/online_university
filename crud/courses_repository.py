@@ -1,4 +1,5 @@
 
+from typing import Optional
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.future import select
@@ -22,7 +23,7 @@ async def create_new_course(
 async def get_course_by_id(
     session: AsyncSession,
     id: int
-):
+) -> Optional[Course]:
     query = (
         select(Course)
         .filter_by(id=id)
@@ -39,7 +40,8 @@ async def get_paginated_courses(
         session,
         select(Course)
         .options(selectinload(Course.lessons), selectinload(Course.users))
-        .order_by(Course.title), params
+        .order_by(Course.title),
+        params
     )
 
 
