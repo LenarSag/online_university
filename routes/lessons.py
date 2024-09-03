@@ -51,12 +51,36 @@ async def get_course_or_404(
 async def create_lesson(
     lesson_data: LessonCreate,
     current_user: Annotated[User, Depends(get_current_user)],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
+    course_id: int = Path(..., title="The id of course"),
 ):
+    course = await get_course_or_404(session, course_id)
     new_lesson = await create_new_lesson(
-        session, lesson_data
+        session, lesson_data, course.id
     )
     return new_lesson
+
+
+@lessonsrouter.get(
+    "/{id}", response_model=LessonData
+)
+@check_admin_or_subscription
+async def get_lesson(
+    id: int,
+    course_id: Annotated[int, Path(..., title="The id of course")],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    
+):
+    lesson = await get_lesson_or_404(session, id)
+    return (
+        LessonData(
+            id=lesson.id,
+            title=lesson.title,
+            link=lesson.link,
+            course_id=lesson.course_id,
+        )
+    )
 
 
 @lessonsrouter.get(
@@ -84,23 +108,4 @@ async def get_lessons(
     return result
 
 
-@lessonsrouter.get(
-    "/{id}", response_model=LessonData
-)
-@check_admin_or_subscription
-async def get_lesson(
-    id: int,
-    course_id: Annotated[int, Path(..., title="The id of course")],
-    current_user: Annotated[User, Depends(get_current_user)],
-    session: Annotated[AsyncSession, Depends(get_session)],
-    
-):
-    lesson = await get_lesson_or_404(session, id)
-    return (
-        LessonData(
-            id=lesson.id,
-            title=lesson.title,
-            link=lesson.link,
-            course=lesson.course_id,
-        )
-    )
+

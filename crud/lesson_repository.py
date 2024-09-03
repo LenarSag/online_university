@@ -13,9 +13,14 @@ from schemas.course_schema import LessonCreate
 
 async def create_new_lesson(
     session: AsyncSession,
-    lesson_data: LessonCreate
+    lesson_data: LessonCreate,
+    course_id: int
 ) -> Lesson:
-    new_lesson = Lesson(**lesson_data.model_dump())
+    new_lesson = Lesson(
+        course_id=course_id,
+        **lesson_data.model_dump()
+    )
+    new_lesson.link = str(new_lesson.link)
     session.add(new_lesson)
     await session.commit()
     return new_lesson

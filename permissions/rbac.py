@@ -23,7 +23,6 @@ def check_role(required_roles: list[str]):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Insufficient permissions",
-                    headers={"WWW-Authenticate": "Bearer"}
                 )
             return await func(
                 *args, current_user=current_user, session=session, **kwargs
@@ -44,18 +43,27 @@ def check_admin_or_subscription(func):
     ):
         if current_user.role.value == "admin":
             return await func(
-                *args, current_user=current_user, session=session, course_id=course_id, **kwargs
+                *args,
+                current_user=current_user,
+                session=session,
+                course_id=course_id,
+                **kwargs
             )
 
-        subscription_exists = await check_user_subscription(session, current_user.id, course_id)
+        subscription_exists = await check_user_subscription(
+            session, current_user.id, course_id
+        )
         if not subscription_exists:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions",
-                headers={"WWW-Authenticate": "Bearer"}
             )
 
         return await func(
-            *args, current_user=current_user, session=session, course_id=course_id, **kwargs
+            *args,
+            current_user=current_user,
+            session=session,
+            course_id=course_id,
+            **kwargs
         )
     return wrapper

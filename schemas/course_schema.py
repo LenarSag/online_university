@@ -14,11 +14,11 @@ class LessonMini(BaseModel):
 
 class LessonCreate(LessonMini):
     link: HttpUrl
-    course: int
 
 
 class LessonData(LessonCreate):
     id: int
+    course_id: int
 
 
 class CourseUpdate(BaseModel):
