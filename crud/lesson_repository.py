@@ -2,10 +2,12 @@ from typing import Optional
 
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import literal_column
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.course_model import Lesson
+from models.user_model import subscription
 from schemas.course_schema import LessonCreate
 
 
@@ -40,3 +42,16 @@ async def get_paginated_lessons(
         .order_by(Lesson.title),
         params
     )
+
+
+async def check_user_subscription(
+    session: AsyncSession,
+    user_id: int,
+    course_id
+):
+    stmt = select(literal_column("1")).where(
+        subscription.c.user_id == user_id,
+        subscription.c.course_id == course_id
+    )
+    result = await session.execute(stmt)
+    return result.scalar()

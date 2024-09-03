@@ -16,9 +16,6 @@ class LessonCreate(LessonMini):
     link: HttpUrl
     course: int
 
-    class Config:
-        from_attributes = True
-
 
 class LessonData(LessonCreate):
     id: int

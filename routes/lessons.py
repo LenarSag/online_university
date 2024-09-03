@@ -10,7 +10,7 @@ from crud.lesson_repository import create_new_lesson, get_lesson_by_id, get_pagi
 from db.database import get_session
 from models.course_model import Course, Lesson
 from models.user_model import User
-from permissions.rbac import check_role
+from permissions.rbac import check_admin_or_subscription, check_role
 from schemas.course_schema import LessonCreate, LessonData
 from security.security import get_current_user
 
@@ -51,7 +51,7 @@ async def get_course_or_404(
 async def create_lesson(
     lesson_data: LessonCreate,
     current_user: Annotated[User, Depends(get_current_user)],
-    session: AsyncSession
+    session: Annotated[AsyncSession, Depends(get_session)]
 ):
     new_lesson = await create_new_lesson(
         session, lesson_data
@@ -62,12 +62,15 @@ async def create_lesson(
 @lessonsrouter.get(
     "/", response_model=Page[LessonData]
 )
+@check_admin_or_subscription
 async def get_lessons(
-    session: AsyncSession,
     params: Params,
-    course_id: int = Path(..., title="The id of course")
+    course_id: Annotated[int, Path(..., title="The id of course")],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    result = await get_paginated_lessons(session, params, course_id)
+    course = await get_course_or_404(session, course_id)
+    result = await get_paginated_lessons(session, params, course.id)
     result.items = [
         LessonData(
             id=lesson.id,
@@ -80,14 +83,24 @@ async def get_lessons(
 
     return result
 
+
 @lessonsrouter.get(
-    "/{lesson_id}", response_model=LessonData
+    "/{id}", response_model=LessonData
 )
+@check_admin_or_subscription
 async def get_lesson(
     id: int,
-    course_id: int = Path(..., title="The id of course"),
-    session: AsyncSession = Depends(get_session)
+    course_id: Annotated[int, Path(..., title="The id of course")],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    
 ):
-    course = await get_course_or_404(session, course_id)
     lesson = await get_lesson_or_404(session, id)
-    return lesson
+    return (
+        LessonData(
+            id=lesson.id,
+            title=lesson.title,
+            link=lesson.link,
+            course=lesson.course_id,
+        )
+    )

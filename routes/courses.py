@@ -59,25 +59,21 @@ async def get_course(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
-    course = await get_course_by_id(
+    course = await get_course_or_404(
         session, id
     )
-    if course:
-        return (
-            CourseData(
-                id=course.id,
-                author=course.author,
-                title=course.title,
-                start_date=course.start_date,
-                price=course.price,
-                lessons_count=len(course.lessons),
-                lessons=course.lessons,
-                students_count=len(course.users)
-                )
-        )
-    raise HTTPException(
-        detail="Course not found",
-        status_code=status.HTTP_404_NOT_FOUND
+
+    return (
+        CourseData(
+            id=course.id,
+            author=course.author,
+            title=course.title,
+            start_date=course.start_date,
+            price=course.price,
+            lessons_count=len(course.lessons),
+            lessons=course.lessons,
+            students_count=len(course.users)
+            )
     )
 
 
@@ -112,8 +108,8 @@ async def get_courses(
 async def update_course_data(
     id: int,
     new_course_data: CourseUpdate,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
 ):
     course_to_update = await get_course_or_404(session, id)
     updated_course = await update_course(
@@ -127,8 +123,8 @@ async def update_course_data(
 async def delete_course_data(
     id: int,
     new_course_data: CourseUpdate,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
 ):
     course_to_delete = await get_course_or_404(session, id)
     await delete_course(session, course_to_delete)
