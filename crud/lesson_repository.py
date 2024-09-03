@@ -60,3 +60,25 @@ async def check_user_subscription(
     )
     result = await session.execute(stmt)
     return result.scalar()
+
+
+async def update_lesson_data(
+    session: AsyncSession,
+    lesson: Lesson,
+    new_lesson_data: LessonCreate
+) -> Lesson:
+    update_data = new_lesson_data.model_dump()
+    for key, value in update_data.items():
+        if value:
+            setattr(lesson, key, value)
+    await session.commit()
+    await session.refresh(lesson)
+    return lesson
+
+
+async def delete_lesson_data(
+    session: AsyncSession,
+    lesson: Lesson,
+) -> None:
+    await session.delete(lesson)
+    await session.commit()

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.courses_repository import get_course_by_id
-from crud.lesson_repository import create_new_lesson, get_lesson_by_id, get_paginated_lessons
+from crud.lesson_repository import create_new_lesson, delete_lesson_data, get_lesson_by_id, get_paginated_lessons, update_lesson_data
 from db.database import get_session
 from models.course_model import Course, Lesson
 from models.user_model import User
@@ -108,4 +108,29 @@ async def get_lessons(
     return result
 
 
+@lessonsrouter.patch("/{id}")
+@check_role(["admin"])
+async def update_lesson(
+    id: int,
+    new_lesson_data: LessonCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    lesson_to_update = await get_lesson_or_404(session, id)
+    updated_lesson = await update_lesson_data(
+        session, lesson_to_update, new_lesson_data
+    )
+    return updated_lesson
 
+
+@lessonsrouter.delete(
+    "/{id}", status_code=status.HTTP_204_NO_CONTENT
+)
+@check_role(["admin"])
+async def delete_lesson(
+    id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    lesson_to_delete = await get_lesson_or_404(session, id)
+    await delete_lesson_data(session, lesson_to_delete)
