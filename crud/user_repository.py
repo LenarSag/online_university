@@ -6,6 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from models.course_model import Course, Group
 from models.user_model import Balance, User
 from schemas.user_schema import UserCreate, UserEdit
 
@@ -64,6 +65,14 @@ async def get_user_balance(
     return user
 
 
+async def get_user_with_balance_and_courses(
+    session: AsyncSession,
+    user: User
+) -> User:
+    await session.refresh(user, attribute_names=("balance", "courses"))
+    return user
+
+
 async def update_balance(
     session: AsyncSession,
     user: User,
@@ -111,4 +120,18 @@ async def delete_user(
     user: User
 ) -> None:
     await session.delete(user)
+    await session.commit()
+
+
+async def buy_new_course(
+    session: AsyncSession,
+    course: Course,
+    user: User,
+    group: Group
+) -> None:
+    user.courses.append(course)
+    user.balance.amount -= course.price
+    await session.refresh(group, attribute_names=("users",))
+    group.users.append(user)
+    await session.flush()
     await session.commit()

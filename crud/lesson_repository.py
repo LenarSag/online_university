@@ -52,7 +52,7 @@ async def get_paginated_lessons(
 async def check_user_subscription(
     session: AsyncSession,
     user_id: int,
-    course_id
+    course_id: int
 ):
     stmt = select(literal_column("1")).where(
         subscription.c.user_id == user_id,
