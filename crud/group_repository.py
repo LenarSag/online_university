@@ -28,9 +28,12 @@ async def get_group_by_id(
     session: AsyncSession,
     id: int
 ) -> Optional[Group]:
-    query = select(Group).filter_by(id=id)
+    query = (
+        select(Group)
+        .filter_by(id=id)
+        .options(selectinload(Group.users))
+    )
     result = await session.execute(query)
-    
     return result.scalar()
 
 

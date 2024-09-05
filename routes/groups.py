@@ -71,7 +71,14 @@ async def get_group(
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     group = await get_group_or_404(session, id)
-    return group
+    return (
+        GroupData(
+            id=group.id,
+            title=group.title,
+            course_id=group.course_id,
+            users=group.users
+        )
+    )
 
 
 @groupsrouter.get(

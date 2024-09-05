@@ -48,12 +48,12 @@ class CourseData(CourseCreate):
 
 
 class GroupCreate(BaseModel):
-    course_id: int
     title: str = Field(max_length=100)
 
 
 class GroupBase(GroupCreate):
     id: int
+    course_id: int
 
     class Config:
         from_attributes = True
