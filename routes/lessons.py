@@ -100,7 +100,7 @@ async def get_lessons(
             id=lesson.id,
             title=lesson.title,
             link=lesson.link,
-            course=lesson.course_id
+            course_id=lesson.course_id
         )
         for lesson in result.items
     ]

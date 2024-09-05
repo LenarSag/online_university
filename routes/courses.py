@@ -17,6 +17,7 @@ from models.course_model import Course
 from models.user_model import User
 from permissions.rbac import check_role
 from routes.lessons import lessonsrouter
+from routes.groups import groupsrouter
 from schemas.course_schema import CourseCreate, CourseData, CourseUpdate
 from security.security import get_current_user
 
@@ -131,3 +132,4 @@ async def delete_course_data(
 
 
 coursesrouter.include_router(lessonsrouter, prefix="/{course_id}/lessons")
+coursesrouter.include_router(groupsrouter, prefix="/{course_id}/groups")
