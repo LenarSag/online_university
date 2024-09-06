@@ -45,7 +45,7 @@ async def get_paginated_courses(
     )
 
 
-async def update_course(
+async def update_course_data(
     session: AsyncSession,
     course: Course,
     new_course_data: CourseUpdate
@@ -59,7 +59,7 @@ async def update_course(
     return course
 
 
-async def delete_course(
+async def delete_course_data(
     session: AsyncSession,
     course: Course
 ) -> None:

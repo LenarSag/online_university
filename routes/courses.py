@@ -7,14 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.courses_repository import (
     create_new_course,
-    delete_course,
+    delete_course_data,
     get_course_by_id,
     get_paginated_courses,
-    update_course
+    update_course_data
 )
 from crud.group_repository import get_available_group_for_course
 from crud.lesson_repository import check_user_subscription
-from crud.user_repository import buy_new_course, get_user_balance, get_user_with_balance_and_courses
+from crud.user_repository import (
+    buy_new_course, get_user_with_balance_and_courses
+)
 from db.database import get_session
 from models.course_model import Course
 from models.user_model import User
@@ -146,14 +148,14 @@ async def get_courses(
 
 @coursesrouter.patch("/{id}")
 @check_role(["admin"])
-async def update_course_data(
+async def update_course(
     id: int,
     new_course_data: CourseUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_session)]
 ):
     course_to_update = await get_course_or_404(session, id)
-    updated_course = await update_course(
+    updated_course = await update_course_data(
         session, course_to_update, new_course_data
     )
     return updated_course
@@ -161,14 +163,14 @@ async def update_course_data(
 
 @coursesrouter.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 @check_role(["admin"])
-async def delete_course_data(
+async def delete_course(
     id: int,
     new_course_data: CourseUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_session)]
 ):
     course_to_delete = await get_course_or_404(session, id)
-    await delete_course(session, course_to_delete)
+    await delete_course_data(session, course_to_delete)
 
 
 coursesrouter.include_router(lessonsrouter, prefix="/{course_id}/lessons")
