@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.courses_repository import get_course_by_id
-from crud.group_repository import create_new_group, get_group_by_id, get_paginated_groups
+from crud.group_repository import create_new_group, delete_group_data, get_group_by_id, get_paginated_groups, update_group_data
 from db.database import get_session
 from models.course_model import Course, Group
 from models.user_model import User
@@ -104,3 +104,35 @@ async def get_groups(
     ]
 
     return result
+
+
+@groupsrouter.patch(
+    "/{id}",
+    response_model=GroupBase
+)
+@check_role(["admin"])
+async def update_group(
+    id: int,
+    new_group_data: GroupCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    group = await get_group_or_404(session, id)
+    updated_group = await update_group_data(
+        session, group, new_group_data
+    )
+    return updated_group
+
+
+@groupsrouter.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+@check_role(["admin"])
+async def delete_group(
+    id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)]
+):
+    group = await get_group_or_404(session, id)
+    await delete_group_data(session, group)

@@ -68,3 +68,22 @@ async def get_available_group_for_course(
     )
     result = await session.execute(stmt)
     return result.scalars().first()
+
+
+async def update_group_data(
+    session: AsyncSession,
+    group: Group,
+    new_group_data: GroupCreate
+) -> Group:
+    group.title = new_group_data.title
+    await session.commit()
+    await session.refresh(group)
+    return group
+
+
+async def delete_group_data(
+    session: AsyncSession,
+    group: Group
+) -> None:
+    await session.delete(group)
+    await session.commit()
